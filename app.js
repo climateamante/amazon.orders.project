@@ -1,3 +1,7 @@
+function next(){
+  const next_element = document.querySelector('.a-last').querySelector('a').click()
+  nextButton.click();
+}
 
 function scrollUp(callback) {
   let currentPosition = window.pageYOffset;
@@ -8,6 +12,7 @@ function scrollUp(callback) {
   // if at the top of the page, then callback
   else {
     create_csv_data()
+    next();
   }
 
 }
