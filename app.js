@@ -42,7 +42,7 @@ function scrollToBottom(callback) {
     }
   });
 }
-  
+   
 
 function create_csv_data(){
 
