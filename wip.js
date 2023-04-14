@@ -1,3 +1,4 @@
+
 function scrollUp(callback) {
   let currentPosition = window.pageYOffset;
   if (currentPosition > 0) {
@@ -90,91 +91,83 @@ function create_csv_data(){
           console.log(`order_item_element: ${order_item_element}`)
 
 
-          const order_item = order.querySelector('.a-fixed-right-grid-col.a-col-left').querySelector('.a-row')     //order //.children[0].children[1].querySelectorAll('.a-fixed-left-grid-col.yohtmlc-item');
+          const order_items = order.querySelector('.a-fixed-right-grid-col.a-col-left').querySelector('.a-row')     //order //.children[0].children[1].querySelectorAll('.a-fixed-left-grid-col.yohtmlc-item');
         
+          order_items.children.forEach(item => { 
 
-          const item_url = order_item.querySelector('a').href
-          const item_image = order_item.querySelector('img').src
-          const item_id = item_url.match(/product\/([A-Z0-9]+)\/ref/)[1]        
-          const item_description = order_item.querySelector('a').innerText
+            const item_url = item.querySelector('a').href
+            const item_image = item.querySelector('img').src
+            const item_id = item_url.match(/product\/([A-Z0-9]+)\/ref/)[1]        
+            const item_description = item.querySelector('.a-row').innerText //.innerText //   querySelector('a').innerText
+  
+                const row = {
+                  order_number,
+                  order_placed,
+                  order_total,
+                  order_invoice_url,
+                  refund: order_refund,
+                  order_item_image: item_image,
+                  order_item_title: item_description,
+                  order_item_url: item_url,
+                  order_item_id: item_id,
+              };
+  
+                items.push({
+                  id: item_id,
+                  image: item_image,
+                  url: item_url,
+                  image: item_image,
+                  description: item_description,
+              });
 
-              const row = {
-                order_number,
-                order_placed,
-                order_total,
-                order_item_image: item_image,
-                order_item_title: item_description,
-                order_item_url: item_url,
-                order_item_id: item_id,
-                order_invoice_url,
-                refund: order_refund,
-            };
 
-              items.push({
-                id: item_id,
-                image: item_image,
-                url: item_url,
-                image: item_image,
-                description: item_description,
-            });
-
-
-            let prevOrder = {
-              order_number: null,
-              order_placed: null,
-              order_total: null,
-              order_invoice_url: null,
-              refund: null
-            };
-
-            items.forEach((item, index) => {
-              const row = {};
+              let prevOrder = {
+                order_number: null,
+                order_placed: null,
+                order_total: null,
+                order_invoice_url: null,
+                refund: null
+              };
+  
+              
+                  row['order_number'] = order_number || prevOrder.order_number;
+                  row['order_placed'] = order_placed || prevOrder.order_placed;
+                  row['order_total'] = order_total || prevOrder.order_total;
+                  row['order_invoice_url'] = order_invoice_url || prevOrder.order_invoice_url;
+                  row['refund'] = order_refund || prevOrder.refund;
+              
+                  prevOrder = {
+                    order_number: row['order_number'],
+                    order_placed: row['order_placed'],
+                    order_total: row['order_total'],
+                    order_invoice_url: row['order_invoice_url'],
+                    refund: row['refund']
+                  };
+          
+              
+                row['order_item_image'] = item_image;
+                row['order_item_title'] = item_description;
+                row['order_item_url'] = item_url;
+                row['order_item_id'] = item_id;
+              
+                csv.push(row);
             
-              if (index === 0) {
-                row['order_number'] = order_number || prevOrder.order_number;
-                row['order_placed'] = order_placed || prevOrder.order_placed;
-                row['order_total'] = order_total || prevOrder.order_total;
-                row['order_invoice_url'] = order_invoice_url || prevOrder.order_invoice_url;
-                row['refund'] = order_refund || prevOrder.refund;
-            
-                prevOrder = {
-                  order_number: row['order_number'],
-                  order_placed: row['order_placed'],
-                  order_total: row['order_total'],
-                  order_invoice_url: row['order_invoice_url'],
-                  refund: row['refund']
-                };
-              } else { // edgecase, where multiple items in an order, don't have seperate html elements
-                row['order_number'] = csv[csv.length - 1]['order_number'];
-                row['order_placed'] = csv[csv.length - 1]['order_placed'];
-                row['order_total'] = csv[csv.length - 1]['order_total'];
-                row['order_invoice_url'] = csv[csv.length - 1]['order_invoice_url'];
-                row['refund'] = csv[csv.length - 1]['refund'];
-                // row['order_number'] = prevOrder.order_number;
-                // row['order_total'] = prevOrder.order_total;
-                // row['order_invoice_url'] = prevOrder.order_invoice_url;
-                // row['refund'] = prevOrder.refund;
-              }
-            
-              row['order_item_image'] = item.image;
-              row['order_item_title'] = item.description;
-              row['order_item_url'] = item.url;
-              row['order_item_id'] = item.id;
-            
-              csv.push(row);
-            });      
+              // const uniqueItems = removeDuplicateItems(items);
+              console.log(items);
 
-            console.log(items);
+          })
         
 
 
+           
       })
 
 
 
       // const csvText = csv.map(row => Object.values(row).join(',')).join('\n');
 
-
+      // Remove duplicate rows from csv
+      // const uniqueCsv = removeDuplicates(csv);
 
       // Convert the CSV data to an HTML table
       const csv_table = document.createElement('table');
@@ -186,8 +179,23 @@ function create_csv_data(){
       });
 
       table_html += '</tr>';
-      csv.shift(); // Remove the headers (only needed after the first page of results)
+      // csv.shift(); // Remove the headers (only needed after the first page of results)
       // Add the table rows
+
+      // Add the table rows
+      csv.forEach((row) => {
+        const tr = document.createElement('tr');
+        Object.values(row).forEach((value) => {
+            const td = document.createElement('td');
+            td.appendChild(document.createTextNode(value));
+            tr.appendChild(td);
+        });
+
+        csv_table.appendChild(tr);
+      });
+
+      // removeDuplicateRows(csv_table)
+      /*
       csv.forEach((row) => {
           const tr = document.createElement('tr');
           Object.values(row).forEach((value) => {
@@ -198,10 +206,12 @@ function create_csv_data(){
 
           csv_table.appendChild(tr);
       });
+      */
 
       //  Log the HTML table to the console
       // Open a new window and write the CSV table HTML to it
 
+      csv_table.deleteRow(0) // remove headers
 
       const popup = window.open('', '_blank');
       popup.document.write(`
