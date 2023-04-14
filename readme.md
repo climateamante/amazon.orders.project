@@ -1,7 +1,7 @@
 ## amazon orders: browser native vanilla javascript without an api
 
 * example output:
-```html
+
 <table>
   <thead>
     <tr>
@@ -52,4 +52,3 @@
     </tr>
   </tbody>
 </table>
-```
